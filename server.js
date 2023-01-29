@@ -19,6 +19,7 @@ mongoose.connect(`mongodb://root:password@localhost:27018`,{
     useNewUrlParser: true,
     useUnifiedTopology: true,
     dbName: 'good_card',
+    autoIndex: true,
 })
 
 app.use('/', router)

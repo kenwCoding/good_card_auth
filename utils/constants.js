@@ -8,3 +8,7 @@ export const corsConfig = {
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     "optionsSuccessStatus": 200
 }
+
+/* JWT */
+export const ACCESS_TOKEN_TIME = 10
+export const REFRESH_TOKEN_TIME = 300
