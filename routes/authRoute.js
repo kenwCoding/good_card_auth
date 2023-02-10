@@ -2,11 +2,9 @@ import express from 'express';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../models';
-import { createAccessToken, updateRefreshToken } from '../utils/helpers';
-const authRouter = express.Router();
+import { updateAccessToken, updateRefreshToken } from '../utils/helpers';
 
-const ACCESS_TOKEN_TIME = 200
-const REFRESH_TOKEN_TIME = 300
+const authRouter = express.Router();
 
 /* Get Refresh Token */
 
@@ -32,54 +30,74 @@ authRouter.post('/login', async (req, res, next) => {
 
         if (isPasswordValid) {
             const refreshToken = await updateRefreshToken(payload)
-            const accessToken = await createAccessToken(payload, refreshToken)
-
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                maxAge: REFRESH_TOKEN_TIME * 1000
-            })
-
-            return res.status(200).json({ accessToken })
+            const accessToken = await updateAccessToken(refreshToken)
+            return res.status(200).json({refreshToken, accessToken})
         } else {
             return res.status(403).json({message: 'Unauthorized'})
         }
-
     } catch (e) {
-        console.error('Unable to create user: ', e);
-        return res.status(400).json(e)
-    }
-})
-
-/* Create User */
-authRouter.post('/', async (req, res, next) => {
-    try {
-        
-    } catch (e) {
-        console.error('Unable to create user: ', e);
-        return res.status(400).json(e)
+        console.error('Unable to login: ', e);
+        return res.status(403).json({message: e.message})
     }
 })
 
 /* Check AccessToken */
 authRouter.post('/check', async (req, res, next) => {
     try {
-        const { body } = req
+        const { accessToken } = req.body
 
-        if (!body?.accessToken){
-            throw new Error('Missing Access Token')
+        if (!accessToken) {
+            return res.status(400).json({message: 'Missing Access Token, Please login again.'})
         }
 
-        const decoded = jwt.verify(body.accessToken, process.env.ACCESS_TOKEN_SECRET)
+        const payload = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {
+            if (err) {
+                throw new Error(err.message)
+            }
+            return decode
+        })
 
-        if (!decoded) {
-            throw new Error('Access Token is not valid')
+        if (!payload) {
+            return res.status(403).json({message: 'Access Token Expired, Please refresh the token.'})
         }
 
-        return res.status(200).json({message: 'success'})
+        return res.status(200).json({message: 'Authorised'})
     } catch (e) {
-        console.error(e);
+        console.error(e.message);
+
+        if (e.message === 'jwt expired') {
+            console.log('access expired');
+            return res.status(403).json({message: 'access token expired'})
+        }
+
+        return res.status(400).json({message: e.message})
+    }
+})
+
+/* Refresh AccessToken */
+authRouter.post('/refresh', async (req, res, next) => {
+    try {
+        const { refreshToken } = req.body
+
+        if (!refreshToken) {
+            return res.status(400).json({message: 'Missing Refresh Token Token, Please login again.'})
+        }
+
+        const accessToken = await updateAccessToken(refreshToken)
+
+        if (!accessToken) {
+            return res.status(403).json({message: 'Access Token Expired, Please refresh the token.'})
+        }
+
+        return res.status(200).json({ accessToken })
+    } catch (e) {
+        console.error(e.message);
+
+        if (e.message === 'jwt expired') {
+            console.log('refresh expired');
+            return res.status(403).json({message: 'refresh token expired'})
+        }
+
         return res.status(400).json({message: e.message})
     }
 })
