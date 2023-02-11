@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import router from './src/routes';
-import { corsConfig } from './src/utils/constants';
+import router from './routes';
+import { corsConfig } from './utils/constants';
 
 dotenv.config();
 
