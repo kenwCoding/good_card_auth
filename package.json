@@ -2,11 +2,11 @@
   "name": "good_card_auth",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel src --out-dir dist --copy-files",
-    "start": "nodemon --experimental-specifier-resolution=node ./src/server.js localhost 3002"
+    "start": "nodemon --exec babel-node src/index.js"
   },
   "repository": {
     "type": "git",

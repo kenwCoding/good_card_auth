@@ -2,11 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import router from './routes';
 import { corsConfig } from './utils/constants';
-
-dotenv.config();
 
 const app = express();
 
@@ -26,7 +23,7 @@ app.use('/', router)
 
 app.use(express.static('public'));
 
-const server = app.listen(3002, function () {
+const server = app.listen(process.env.PORT || '3000', function () {
     const port = server.address().port
-    console.log(`Listioning to Server http://localhost:${[port]}`)
+    console.log(`Listioning to Auth Server::${port}`)
 })
