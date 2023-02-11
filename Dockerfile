@@ -6,12 +6,18 @@ COPY .babelrc .
 
 COPY package*.json ./
 
-COPY . .
+COPY yarn.lock .
 
 RUN yarn
 
+COPY src src
+
 RUN yarn run build
 
+ENV PORT=8080
+
 EXPOSE 8081
+
+ENV NODE_START_CMD=./dist/server.js
 
 CMD [ "node", "./src/server.js" ]
