@@ -23,7 +23,7 @@ app.use('/', router)
 
 app.use(express.static('public'));
 
-const server = app.listen(process.env.PORT || '3000', function () {
+const server = app.listen(process.env.PORT || '3002', function () {
     const port = server.address().port
     console.log(`Listioning to Auth Server::${port}`)
 })
