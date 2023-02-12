@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors(corsConfig))
 app.use(cookieParser());
 
-mongoose.connect(`mongodb://root:password@localhost:27018`,{
+mongoose.connect(process.env.MONGODB_CONNECTION_STRING || "mongodb://root:password@127.0.0.1:27018",{
     useNewUrlParser: true,
     useUnifiedTopology: true,
     dbName: 'good_card',
