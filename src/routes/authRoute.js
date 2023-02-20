@@ -8,7 +8,14 @@ const authRouter = express.Router();
 
 /* Get Refresh Token */
 
-/* Login */
+/** NOTE: Login
+ * @param username
+ * @param password
+ * @param role
+ * @param provider
+ * @returns {refreshToken, accessToken, userInfo}
+ * @summary: Login to generate new access token and refresh token for backend server use
+ */
 authRouter.post('/login', async (req, res, next) => {
     try {
         const { username, password, role, provider } = req.body
@@ -27,11 +34,13 @@ authRouter.post('/login', async (req, res, next) => {
         }
 
         const isPasswordValid = await argon2.verify(user.password, password)
-
+        
         if (isPasswordValid) {
+            payload['userId'] = user._id.valueOf()
             const refreshToken = await updateRefreshToken(payload)
             const accessToken = await updateAccessToken(refreshToken)
-            return res.status(200).json({refreshToken, accessToken})
+
+            return res.status(200).json({refreshToken, accessToken, userInfo: payload})
         } else {
             return res.status(403).json({message: 'Unauthorized'})
         }
@@ -41,13 +50,17 @@ authRouter.post('/login', async (req, res, next) => {
     }
 })
 
-/* Check AccessToken */
+/** NOTE: Check Access Token
+ * @param accessToken
+ * @returns {message, userInfo}
+ * @summary: Check Access Token and return userInfo
+ */
 authRouter.post('/check', async (req, res, next) => {
     try {
         const { accessToken } = req.body
 
         if (!accessToken) {
-            return res.status(400).json({message: 'Missing Access Token, Please login again.'})
+            return res.status(403).json({message: 'Missing Access Token, Please login again.'})
         }
 
         const payload = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {
@@ -61,7 +74,7 @@ authRouter.post('/check', async (req, res, next) => {
             return res.status(403).json({message: 'Access Token Expired, Please refresh the token.'})
         }
 
-        return res.status(200).json({message: 'Authorised'})
+        return res.status(200).json({message: 'Authorised', userInfo: payload})
     } catch (e) {
         console.error(e.message);
 
@@ -74,7 +87,11 @@ authRouter.post('/check', async (req, res, next) => {
     }
 })
 
-/* Refresh AccessToken */
+/** NOTE: Refresh Access Token
+ * @param refreshToken
+ * @returns {accessToken, userInfo}
+ * @summary: Refresh Access Token and return userInfo
+ */
 authRouter.post('/refresh', async (req, res, next) => {
     try {
         const { refreshToken } = req.body
@@ -89,7 +106,8 @@ authRouter.post('/refresh', async (req, res, next) => {
             return res.status(403).json({message: 'Access Token Expired, Please refresh the token.'})
         }
 
-        return res.status(200).json({ accessToken })
+        const payload = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
+        return res.status(200).json({ accessToken, userInfo: payload})
     } catch (e) {
         console.error(e.message);
 
