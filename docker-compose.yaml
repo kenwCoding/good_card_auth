@@ -9,3 +9,14 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: good_card
+  # backend:
+  #   container_name: backend
+  #   image: goodcardcoding/good_card_backend_stg:milestone-1.0.0
+  #   restart: always
+  #   ports:
+  #     - 3001:8080
+  #   environment:
+  #     - MONGODB_CONNECTION_STRING=mongodb://root:password@db:27017
+  #     - AUTH_SERVER_BASE_URL=http://host.docker.internal:3002
+  #   depends_on:
+  #     - db
