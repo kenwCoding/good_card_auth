@@ -29,7 +29,7 @@ https://github.com/kenwCoding/good_card_smtp
 - FE => Source BE => Auth BE
 
 # PORT
-- 3001
+- 3002
 
 # Env
 - https://github.com/kenwCoding/good_card_auth/settings/environments/857490867/edit
